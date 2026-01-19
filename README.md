@@ -1,6 +1,7 @@
 - [x] I've validated the bug against the latest version of DB packages
 
 **Describe the bug**
+
 For context, i'm using a `QueryCollection`.
 
 Using a computed queryKey along with `syncMode: 'on-demand'` causes a weird behaviour in the `QueryClient` cache when using `collection.utils.writeUpdate`.
@@ -53,6 +54,7 @@ The described behaviour happens in 3 different scenarios:
 Note that when I reference a "computed query key", I mean a queryKey that is either a function (case 2 and 3), or a queryKey that is not, but becomes computed because of an `on-demand` collection + a `where` clause (case 1).
 
 **To Reproduce**
+
 Steps to reproduce the behavior:
 
 1. Create a collection using `createCollection(queryCollectionOptions())`
@@ -76,9 +78,11 @@ To run it:
 7. Notice that the item you clicked has reset its count
 
 **Expected behavior**
+
 I expected the query cache to be updated correctly, and for liveQueries to retain the updated information across remounts.
 
 **Screenshots**
+
 I've provided two screenshots displaying the query cache as seen in the `react-query-devtools` in case 1 and 2 of the bug description.
 
 **Desktop (please complete the following information):**
@@ -92,4 +96,5 @@ I've provided two screenshots displaying the query cache as seen in the `react-q
   - `@tanstack/react-query-devtools`: 5.91.2
 
 **Additional notes**
+
 I haven't tested direct write operations other than `writeUpdate`.
