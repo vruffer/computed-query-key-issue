@@ -1,8 +1,5 @@
-import {
-  queryCollectionOptions,
-  type SimpleComparison,
-} from '@tanstack/query-db-collection';
-import { createCollection, parseLoadSubsetOptions } from '@tanstack/react-db';
+import { queryCollectionOptions } from '@tanstack/query-db-collection';
+import { createCollection } from '@tanstack/react-db';
 import { QueryClient } from '@tanstack/react-query';
 
 export async function wait(ms: number) {
@@ -24,6 +21,11 @@ function populateDb() {
     {
       id: 0,
       name: 'first',
+      count: 0,
+    },
+    {
+      id: 1,
+      name: 'second',
       count: 0,
     },
   ];
@@ -64,40 +66,17 @@ export const collection = createCollection(
       return getDb();
     },
     getKey: (item) => item.id,
-  })
+  }),
 );
 
-export const node = createCollection(
+export const toggled = createCollection(
   queryCollectionOptions({
-    queryKey: (opts) => [
-      'node',
-      getIdFromFilters(parseLoadSubsetOptions(opts).filters),
-    ],
+    queryKey: () => ['toggled'],
     queryClient,
     queryFn: async () => {
-      await wait(50);
-      const db = getDb();
-      const node = db.find((i) => i.id === 0);
-      if (node) return db;
-      return [];
+      return getDb();
     },
     getKey: (item) => item.id,
     syncMode: 'on-demand',
-  })
+  }),
 );
-
-export function getIdFromFilters(filters: SimpleComparison[]) {
-  for (const filter of filters) {
-    const [field, ...rest] = filter.field;
-
-    if (
-      field === 'id' &&
-      !rest.length &&
-      filter.operator === 'eq' &&
-      typeof filter.value === 'number'
-    ) {
-      return filter.value;
-    }
-  }
-  throw new Error(`No eq(collection.id, 'id') filter in where clause`);
-}

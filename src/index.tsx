@@ -1,11 +1,10 @@
-import { eq, useLiveQuery } from '@tanstack/react-db';
-
-import { add, collection, node, type Item } from './collection';
+import { useLiveQuery } from '@tanstack/react-db';
+import { add, collection, toggled, type Item } from './collection';
 import { useState } from 'react';
 
 export function Index() {
   const data = useLiveQuery((q) =>
-    q.from({ col: collection }).orderBy(({ col }) => col.id)
+    q.from({ col: collection }).orderBy(({ col }) => col.id),
   );
 
   const [showNode, setShowNode] = useState(true);
@@ -13,7 +12,7 @@ export function Index() {
   const onClick = async (i: Item) => {
     const updated = add(i.id);
     collection.utils.writeUpdate(updated);
-    node.utils.writeUpdate(updated);
+    toggled.utils.writeUpdate(updated);
   };
 
   return (
@@ -27,39 +26,37 @@ export function Index() {
               cursor: 'pointer',
               userSelect: 'none',
             }}
-            onClick={async () => onClick(i)}
+            onClick={() => onClick(i)}
           >
             id: {i.id}, name: {i.name}, count: {i.count}
           </li>
         ))}
       </ul>
-      <button onClick={() => setShowNode((prev) => !prev)}>Toggle node</button>
-      {showNode && <Node onClick={onClick} />}
+      <button onClick={() => setShowNode((prev) => !prev)}>
+        Toggle toggled
+      </button>
+      {showNode && <Toggled onClick={onClick} />}
     </>
   );
 }
 
-function Node(props: { onClick: (item: Item) => void }) {
-  const { data: nodeData } = useLiveQuery((q) =>
-    q
-      .from({ col: node })
-      .where(({ col }) => eq(col.id, 0))
-      .findOne()
-  );
+function Toggled(props: { onClick: (item: Item) => void }) {
+  const { data } = useLiveQuery((q) => q.from({ col: toggled }));
   return (
-    nodeData && (
-      <>
-        <h2>Node</h2>
-        <div
+    <div>
+      <h2>Toggled</h2>
+      {data.map((i) => (
+        <li
+          key={i.id}
           style={{
             cursor: 'pointer',
             userSelect: 'none',
           }}
-          onClick={async () => props.onClick(nodeData)}
+          onClick={() => props.onClick(i)}
         >
-          id: {nodeData.id}, name: {nodeData.name}, count: {nodeData.count}
-        </div>
-      </>
-    )
+          id: {i.id}, name: {i.name}, count: {i.count}
+        </li>
+      ))}
+    </div>
   );
 }
